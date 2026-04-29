@@ -74,14 +74,18 @@
                     let rankDisplay = index + 1;
                     if(index === 0) rankDisplay = '👑 1';
 
+                    const avgTime = parseFloat(row.averagetime) || 0;
+                    const bestTime = parseFloat(row.besttime) || 0;
+                    const totalScore = parseFloat(row.totalscore) || 0;
+
                     tr.innerHTML = `
                         <td class="${index === 0 ? 'rank-1' : ''}">${rankDisplay}</td>
-                        <td style="font-weight:bold; color: #fff;">${row.Name} <span style="font-size:0.8em; color:#666;">(#${row.UserID})</span></td>
-                        <td><span class="mode-badge">${row.TotalRounds}</span></td>
-                        <td class="time-val">${row.AverageTime.toFixed(3)}s</td>
-                        <td class="time-val" style="color:var(--accent)">${row.BestTime.toFixed(3)}s</td>
-                        <td style="font-weight:bold;">${row.TotalScore.toFixed(0)}</td>
-                        <td style="color:#8b949e; font-size:0.9em;">${row.LastPlayed}</td>
+                        <td style="font-weight:bold; color: #fff;">${row.name || 'Unknown'} <span style="font-size:0.8em; color:#666;">(#${row.userid})</span></td>
+                        <td><span class="mode-badge">${row.totalrounds || '0'} rounds</span></td>
+                        <td class="time-val">${avgTime.toFixed(3)}s</td>
+                        <td class="time-val" style="color:var(--accent)">${bestTime.toFixed(3)}s</td>
+                        <td style="font-weight:bold;">${totalScore.toFixed(0)}</td>
+                        <td style="color:#8b949e; font-size:0.9em;">${row.lastplayed || '-'}</td>
                     `;
                     tbody.appendChild(tr);
                 });
