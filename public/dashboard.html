@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Reaction Command Center</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="user-profile-container">
+        <div class="user-name-display">Welcome, <span id="userNameDisplay">User</span></div>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+    <div class="container">
+        <h1>⚡ REACTOR DASHBOARD</h1>
+        <div class="card">
+            <div class="table-wrapper">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Player Name</th>
+                            <th>Mode</th>
+                            <th>Avg Time</th>
+                            <th>Best Time</th>
+                            <th>Score</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auth Check
+        const userStr = localStorage.getItem('user');
+        let sessionStarted = false;
+
+        if (!userStr) {
+            window.location.href = 'index.html';
+        } else {
+            const user = JSON.parse(userStr);
+            document.getElementById('userNameDisplay').textContent = `${user.FirstName} ${user.LastName}`;
+            
+            // เริ่ม Session สำหรับผู้เล่นคนนี้
+            fetch('/api/start_session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ UserID: user.UserID, Name: `${user.FirstName} ${user.LastName}` })
+            }).then(res => res.json()).then(data => {
+                console.log("Session started:", data);
+                sessionStarted = true;
+            }).catch(err => console.error(err));
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        async function fetchData() {
+            try {
+                const response = await fetch('/api/data');
+                const data = await response.json();
+                const tbody = document.querySelector('#dataTable tbody');
+                tbody.innerHTML = ''; 
+
+                data.forEach((row, index) => {
+                    const tr = document.createElement('tr');
+                    tr.style.animationDelay = `${index * 0.05}s`; 
+                    
+                    let rankDisplay = index + 1;
+                    if(index === 0) rankDisplay = '👑 1';
+
+                    tr.innerHTML = `
+                        <td class="${index === 0 ? 'rank-1' : ''}">${rankDisplay}</td>
+                        <td style="font-weight:bold; color: #fff;">${row.Name} <span style="font-size:0.8em; color:#666;">(#${row.UserID})</span></td>
+                        <td><span class="mode-badge">${row.TotalRounds}</span></td>
+                        <td class="time-val">${row.AverageTime.toFixed(3)}s</td>
+                        <td class="time-val" style="color:var(--accent)">${row.BestTime.toFixed(3)}s</td>
+                        <td style="font-weight:bold;">${row.TotalScore.toFixed(0)}</td>
+                        <td style="color:#8b949e; font-size:0.9em;">${row.LastPlayed}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) { console.error('Error:', error); }
+        }
+        fetchData();
+        setInterval(fetchData, 3000); 
+    </script>
+</body>
+</html>

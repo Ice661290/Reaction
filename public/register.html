@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Login - Reaction Command Center</title>
+    <title>⚡ Register - Reaction Command Center</title>
     <link rel="stylesheet" href="style.css">
     <style>
         .auth-container {
@@ -11,13 +11,14 @@
             justify-content: center;
             align-items: center;
             min-height: 80vh;
+            padding-bottom: 40px;
         }
         .auth-card {
             background-color: var(--card-bg);
             border-radius: 15px;
             padding: 40px;
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             position: relative;
             background-image: linear-gradient(135deg, rgba(0,240,255,0.1), rgba(126,231,135,0.05));
@@ -28,11 +29,18 @@
         .auth-card h2 {
             text-align: center;
             font-family: 'Orbitron', sans-serif;
-            color: var(--accent);
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+            color: var(--secondary);
+            text-shadow: 0 0 10px rgba(126, 231, 135, 0.5);
             margin-bottom: 30px;
             margin-top: 0;
             font-size: 2rem;
+        }
+        .input-row {
+            display: flex;
+            gap: 15px;
+        }
+        .input-row .input-group {
+            flex: 1;
         }
         .input-group {
             margin-bottom: 20px;
@@ -57,8 +65,8 @@
         }
         .input-group input:focus {
             outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            border-color: var(--secondary);
+            box-shadow: 0 0 10px rgba(126, 231, 135, 0.3);
             background: rgba(0, 0, 0, 0.4);
         }
         .btn {
@@ -66,18 +74,18 @@
             padding: 12px;
             border: none;
             border-radius: 8px;
-            background: linear-gradient(90deg, var(--accent), #00a2ff);
+            background: linear-gradient(90deg, var(--secondary), #2ea043);
             color: #000;
             font-family: 'Orbitron', sans-serif;
             font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 15px rgba(126, 231, 135, 0.4);
         }
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+            box-shadow: 0 0 25px rgba(126, 231, 135, 0.6);
         }
         .auth-footer {
             text-align: center;
@@ -85,13 +93,13 @@
             font-size: 0.9rem;
         }
         .auth-footer a {
-            color: var(--accent);
+            color: var(--secondary);
             text-decoration: none;
             font-weight: 600;
             transition: 0.3s;
         }
         .auth-footer a:hover {
-            text-shadow: 0 0 8px var(--accent);
+            text-shadow: 0 0 8px var(--secondary);
         }
         #errorMsg {
             color: #ff4d4d;
@@ -100,6 +108,14 @@
             font-size: 0.9rem;
             min-height: 20px;
         }
+        #successMsg {
+            color: var(--secondary);
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            min-height: 20px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -107,48 +123,76 @@
         <h1>⚡ REACTOR DASHBOARD</h1>
         <div class="auth-container">
             <div class="auth-card">
-                <h2>LOGIN</h2>
+                <h2>REGISTER</h2>
                 <div id="errorMsg"></div>
-                <form id="loginForm">
-                    <div class="input-group">
-                        <label for="UserID">User ID</label>
-                        <input type="text" id="UserID" placeholder="Enter your User ID" required>
+                <div id="successMsg">สมัครสมาชิกสำเร็จ! กำลังพากลับไปหน้า Login...</div>
+                <form id="registerForm">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="FirstName">ชื่อ (First Name)</label>
+                            <input type="text" id="FirstName" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="LastName">นามสกุล (Last Name)</label>
+                            <input type="text" id="LastName" required>
+                        </div>
                     </div>
                     <div class="input-group">
-                        <label for="Password">Password</label>
-                        <input type="password" id="Password" placeholder="Enter your password" required>
+                        <label for="UserID">User ID (ชื่อผู้ใช้ / รหัสประจำตัว)</label>
+                        <input type="text" id="UserID" required>
                     </div>
-                    <button type="submit" class="btn">LOGIN</button>
+                    <div class="input-group">
+                        <label for="Password">รหัสผ่าน (Password)</label>
+                        <input type="password" id="Password" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="ConfirmPassword">ยืนยันรหัสผ่าน (Confirm Password)</label>
+                        <input type="password" id="ConfirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn">REGISTER</button>
                 </form>
                 <div class="auth-footer">
-                    ยังไม่มีบัญชีใช่ไหม? <a href="register.html">สมัครสมาชิก (Register)</a>
+                    มีบัญชีอยู่แล้วใช่ไหม? <a href="index.html">เข้าสู่ระบบ (Login)</a>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const FirstName = document.getElementById('FirstName').value;
+            const LastName = document.getElementById('LastName').value;
             const UserID = document.getElementById('UserID').value;
             const Password = document.getElementById('Password').value;
+            const ConfirmPassword = document.getElementById('ConfirmPassword').value;
             const errorMsg = document.getElementById('errorMsg');
+            const successMsg = document.getElementById('successMsg');
+
+            errorMsg.textContent = '';
+            
+            if (Password !== ConfirmPassword) {
+                errorMsg.textContent = 'รหัสผ่านไม่ตรงกัน (Passwords do not match)';
+                return;
+            }
 
             try {
-                const response = await fetch('/api/login', {
+                const response = await fetch('/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ UserID, Password })
+                    body: JSON.stringify({ FirstName, LastName, UserID, Password })
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Save user to localStorage and redirect
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    window.location.href = 'dashboard.html';
+                    document.getElementById('registerForm').style.display = 'none';
+                    successMsg.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
                 } else {
-                    errorMsg.textContent = data.error || 'Login failed.';
+                    errorMsg.textContent = data.error || 'Registration failed.';
                 }
             } catch (error) {
                 errorMsg.textContent = 'Server error. Please try again.';
