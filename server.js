@@ -1,14 +1,20 @@
-// API: บันทึกการกดแต่ละครั้ง (เรียกจาก ESP32) -- เปลี่ยนจาก app.post เป็น app.get
+// API: บันทึกการกดแต่ละครั้ง (เรียกจาก ESP32)
 app.get('/api/record_reaction', async (req, res) => {
-    // รับค่าจาก Query String (?switch=1&time=1.234)
+    // รับค่าจาก Query String และเช็คความถูกต้อง
     const switchID = req.query.switch;
     const reactionTime = parseFloat(req.query.time);
 
-    if (!activeUser) {
-        return res.status(400).json({ error: "No active session. Please login to dashboard first." });
+    // ป้องกันกรณี ESP32 ส่งค่ามาไม่ครบหรือผิดพลาด
+    if (!switchID || isNaN(reactionTime)) {
+        return res.status(400).json({ error: "ข้อมูลไม่ครบถ้วน (ต้องการ switch และ time)" });
     }
 
     try {
+        // 💡 แก้ปัญหา Vercel Serverless รีเซ็ตความจำ
+        // ถ้า activeUser หายไป ให้ใช้ชื่อ Guest เล่นแทน ข้อมูลจะได้ถูกบันทึกเข้า Database เสมอ
+        let currentUserID = activeUser ? activeUser.UserID : 'GUEST_01';
+        let currentUserName = activeUser ? activeUser.Name : 'Guest Player';
+
         // แปลงเลข Switch เป็นชื่อโหมด
         let reactionMode = 'light';
         if (switchID == '1') reactionMode = 'red';
@@ -17,17 +23,29 @@ app.get('/api/record_reaction', async (req, res) => {
         else if (switchID == '4') reactionMode = 'sound';
 
         const timestamp = new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' });
-        const score = calcScore(reactionTime);
 
+        // คำนวณคะแนน
+        let score = 1;
+        if (reactionTime < 3) score = 10;
+        else if (reactionTime < 6) score = 9;
+        else if (reactionTime < 9) score = 8;
+        else if (reactionTime < 12) score = 7;
+        else if (reactionTime < 15) score = 6;
+        else if (reactionTime < 18) score = 5;
+        else if (reactionTime < 22) score = 4;
+        else if (reactionTime < 26) score = 3;
+        else if (reactionTime < 30) score = 2;
+
+        // บันทึกลงฐานข้อมูล Supabase
         await pool.query(
             `INSERT INTO players (UserID, Name, AverageTime, BestTime, TotalScore, TotalRounds, Mode, LastPlayed, FastReactions)
              VALUES ($1, $2, $3, $3, $4, '1', $5, $6, 0)`,
-            [activeUser.UserID, activeUser.Name, reactionTime, score, reactionMode, timestamp]
+            [currentUserID, currentUserName, reactionTime, score, reactionMode, timestamp]
         );
 
-        res.status(200).json({ message: "Reaction recorded", score });
+        res.status(200).json({ message: "Reaction recorded", user: currentUserName, score: score });
     } catch (err) {
-        console.error(err);
+        console.error("Database Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
