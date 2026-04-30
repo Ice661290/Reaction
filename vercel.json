@@ -1,8 +1,6 @@
 {
   "functions": {
-    "server.js": {
-      "runtime": "@vercel/node@5"
-    }
+    "server.js": {}
   },
   "rewrites": [
     {
