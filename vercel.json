@@ -1,7 +1,4 @@
 {
-  "functions": {
-    "server.js": {}
-  },
   "rewrites": [
     {
       "source": "/(.*)",
