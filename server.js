@@ -94,9 +94,11 @@ app.get('/api/data', async (req, res) => {
     try {
         const baseSelect = `
             SELECT id, userid, name, averagetime, mode, totalscore,
-                MIN(averagetime) OVER (PARTITION BY userid, mode) AS besttime,
+                MIN(CASE WHEN averagetime > 0 THEN averagetime ELSE NULL END)
+                    OVER (PARTITION BY userid, mode) AS besttime,
                 lastplayed
             FROM players
+            WHERE averagetime > 0
         `;
         let result;
         if (userID) {
