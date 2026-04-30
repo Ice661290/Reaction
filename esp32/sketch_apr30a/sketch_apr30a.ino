@@ -186,6 +186,7 @@ void loop() {
   if (activeSwitch > 0) {
     if (!isPressing) {
       isPressing = true;
+      hasSentData = false; // 👈 1. สำคัญ: รีเซ็ตสถานะเพื่อให้พร้อมส่งข้อมูลรอบใหม่
       pressStartTime = millis(); 
       lcd.clear();
     }
@@ -201,6 +202,14 @@ void loop() {
     lcd.setCursor(0, 1);
     if (isCurrentlyLocked) {
       lcd.print("STOP! "); // โดนเหยียบแล้ว ล็อคเวลาไว้
+      
+      // 👇 2. จุดสำคัญ: เรียกใช้ฟังก์ชันส่งข้อมูลขึ้นเว็บตรงนี้!
+      if (!hasSentData) {
+        // ส่ง (หมายเลขปุ่ม, เวลาที่ใช้ไป)
+        sendTimeToWeb(activeSwitch, pressDuration / 1000.0);
+        hasSentData = true; // ตั้งค่าเป็น true เพื่อไม่ให้ส่งซ้ำจนกว่าจะกดปุ่มรอบใหม่
+      }
+
     } else {
       lcd.print("Time: "); 
     }
