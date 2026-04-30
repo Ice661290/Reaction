@@ -168,18 +168,24 @@ void loop() {
   int activeSwitch = 0;
   bool isCurrentlyLocked = false;
 
-  if (current_red) {
-    activeSwitch = 1;
-    isCurrentlyLocked = lock_red;
-  } else if (current_yellow) {
-    activeSwitch = 2;
-    isCurrentlyLocked = lock_yellow;
-  } else if (current_green) {
-    activeSwitch = 3; 
-    isCurrentlyLocked = lock_green;
-  } else if (master_sound_on) {
-    activeSwitch = 4;
-    isCurrentlyLocked = lock_sound;
+  if (current_sound_switch) {
+    // 🔊 --- อยู่ใน "โหมดเสียง" --- (เมินปุ่มไฟทั้งหมด)
+    if (master_sound_on) {
+      activeSwitch = 4;
+      isCurrentlyLocked = lock_sound;
+    }
+  } else {
+    // 💡 --- อยู่ใน "โหมดไฟ" --- (เมินสวิตช์เสียงทั้งหมด)
+    if (current_red) {
+      activeSwitch = 1;
+      isCurrentlyLocked = lock_red;
+    } else if (current_yellow) {
+      activeSwitch = 2;
+      isCurrentlyLocked = lock_yellow;
+    } else if (current_green) {
+      activeSwitch = 3; 
+      isCurrentlyLocked = lock_green;
+    }
   }
 
   // --- ⏳ ระบบจับเวลาบนจอ LCD ---

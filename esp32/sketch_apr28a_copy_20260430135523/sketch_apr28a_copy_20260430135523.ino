@@ -103,7 +103,7 @@ void OnDataRecv(const esp_now_recv_info_t * esp_now_info, const uint8_t *incomin
     Serial.print(" >> 💡 [โหมดไฟ] ");
     digitalWrite(buzzerPin, BUZZER_OFF);
     digitalWrite(relayRedPin, incomingData.red_on ? RELAY_ON : RELAY_OFF);
-    digitalWrite(relayYellowPin, incomingData.yellow_on ? RELAY_ON : RELAY_OFF);
+    digitalWrite(relayYellowPin, incomingData.yellow_on ? RELAY_ON : RELAY_OFF);  
     digitalWrite(relayGreenPin, incomingData.green_on ? RELAY_OFF : RELAY_ON); 
 
     if(incomingData.red_on) Serial.print("Relay: RED ON 🔴");
