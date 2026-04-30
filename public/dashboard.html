@@ -21,7 +21,7 @@
                             <th>#</th>
                             <th>Player Name</th>
                             <th>Mode</th>
-                            <th>Avg Time</th>
+                            <th>Reaction Time</th>
                             <th>Best Time</th>
                             <th>Score</th>
                             <th>Timestamp</th>
@@ -62,7 +62,9 @@
 
         async function fetchData() {
             try {
-                const response = await fetch('/api/data');
+                const currentUser = JSON.parse(localStorage.getItem('user'));
+                const userID = currentUser ? currentUser.UserID : '';
+                const response = await fetch(`/api/data?userID=${encodeURIComponent(userID)}`);
                 const data = await response.json();
                 const tbody = document.querySelector('#dataTable tbody');
                 tbody.innerHTML = ''; 
@@ -72,19 +74,22 @@
                     tr.style.animationDelay = `${index * 0.05}s`; 
                     
                     let rankDisplay = index + 1;
-                    if(index === 0) rankDisplay = '👑 1';
 
                     const avgTime = parseFloat(row.averagetime) || 0;
                     const bestTime = parseFloat(row.besttime) || 0;
                     const totalScore = parseFloat(row.totalscore) || 0;
+                    const mode = (row.mode || 'light').toLowerCase();
+                    const modeBadge = mode === 'sound'
+                        ? `<span class="mode-badge" style="background:rgba(255,200,0,0.15);color:#ffd700;border-color:rgba(255,200,0,0.4);">🔊 Sound</span>`
+                        : `<span class="mode-badge">💡 Light</span>`;
 
                     tr.innerHTML = `
                         <td class="${index === 0 ? 'rank-1' : ''}">${rankDisplay}</td>
                         <td style="font-weight:bold; color: #fff;">${row.name || 'Unknown'} <span style="font-size:0.8em; color:#666;">(#${row.userid})</span></td>
-                        <td><span class="mode-badge">${row.totalrounds || '0'} rounds</span></td>
+                        <td>${modeBadge}</td>
                         <td class="time-val">${avgTime.toFixed(3)}s</td>
                         <td class="time-val" style="color:var(--accent)">${bestTime.toFixed(3)}s</td>
-                        <td style="font-weight:bold;">${totalScore.toFixed(0)}</td>
+                        <td style="font-weight:bold;">${totalScore}</td>
                         <td style="color:#8b949e; font-size:0.9em;">${row.lastplayed || '-'}</td>
                     `;
                     tbody.appendChild(tr);

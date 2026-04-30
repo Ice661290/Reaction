@@ -73,7 +73,7 @@ tr:hover {
     transition: 0.2s;
 }
 
-.rank-1 { color: #ffd700; font-weight: bold; text-shadow: 0 0 5px #ffd700; }
+.rank-1 { color: #ffffff; font-weight: bold; }
 
 .mode-badge {
     background: rgba(126, 231, 135, 0.15);

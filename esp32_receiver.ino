@@ -176,47 +176,42 @@ void sendOverrideCommand() {
 }
 
 // ฟังก์ชันสำหรับยิง HTTP POST ข้อมูลเวลาเข้า Database
-void sendReactionTime(float reactionTime) {
+void sendReactionTime(float reactionTime, String mode) {
   if (WiFi.status() == WL_CONNECTED) {
     WiFiClientSecure *client = new WiFiClientSecure;
-    client->setInsecure(); // ข้ามการตรวจสอบ Certificate ทำให้ต่อ Vercel ได้เลย
+    client->setInsecure();
     
     HTTPClient http;
     http.begin(*client, serverUrl);
     http.addHeader("Content-Type", "application/json");
     
-    // สร้าง JSON ง่ายๆ ส่งไปที่เซิร์ฟเวอร์
-    String payload = "{\"reactionTime\":" + String(reactionTime, 3) + "}";
+    // ส่งทั้ง reactionTime และ mode ไปด้วยกัน
+    String payload = "{\"reactionTime\":" + String(reactionTime, 3) + ",\"mode\":\"" + mode + "\"}"; 
     
     int httpResponseCode = http.POST(payload);
     if (httpResponseCode > 0) {
       Serial.print("✅ ส่งเวลาสำเร็จ: ");
-      Serial.print(reactionTime);
-      Serial.print("s (HTTP Code: ");
-      Serial.print(httpResponseCode);
-      Serial.println(")");
+      Serial.print(reactionTime); Serial.print("s | Mode: "); Serial.print(mode);
+      Serial.print(" (HTTP Code: "); Serial.print(httpResponseCode); Serial.println(")");
     } else {
       Serial.print("❌ ส่งเวลาไม่สำเร็จ (HTTP Error: ");
-      Serial.print(httpResponseCode);
-      Serial.println(")");
+      Serial.print(httpResponseCode); Serial.println(")");
     }
     http.end();
-    delete client; // คืนค่าหน่วยความจำ
+    delete client;
   } else {
     Serial.println("❌ WiFi หลุดการเชื่อมต่อ!");
   }
 }
 
-void processReaction(bool isCorrectButton) {
+void processReaction(bool isCorrectButton, String mode) {
   if (isTiming && isCorrectButton) {
-    float reactionTime = (millis() - startTime) / 1000.0; // แปลงเป็นวินาที
-    isTiming = false; // หยุดจับเวลา
-    Serial.print("⏱️ ตบปุ่มถูกต้อง! เวลา: ");
-    Serial.print(reactionTime);
-    Serial.println(" วินาที");
+    float reactionTime = (millis() - startTime) / 1000.0;
+    isTiming = false;
+    Serial.print("⏱️ ตบปุ่มถูกต้อง! Mode: "); Serial.print(mode);
+    Serial.print(" เวลา: "); Serial.print(reactionTime); Serial.println(" วินาที");
     
-    // ยิงข้อมูลเข้าเซิร์ฟเวอร์!
-    sendReactionTime(reactionTime);
+    sendReactionTime(reactionTime, mode);
   }
 }
 
@@ -230,18 +225,18 @@ void loop() {
   if (lastBtnRed == HIGH && curBtnRed == LOW) {
     Serial.println("\n🛑 [OVERRIDE] กดปุ่ม Red หน้างาน! -> ตัดไฟ Red และล็อคตัวส่ง");
     digitalWrite(relayRedPin, RELAY_OFF);
-    processReaction(incomingData.red_on); // เช็คว่าตบถูกตอนไฟแดงติดหรือไม่
+    processReaction(incomingData.red_on, "light"); // โหมด Light
     
     myDataToSend.override_red = true; 
     sendOverrideCommand(); 
     myDataToSend.override_red = false;
-    delay(200); // Debounce
+    delay(200);
   }
   
   if (lastBtnYellow == HIGH && curBtnYellow == LOW) {
     Serial.println("\n🛑 [OVERRIDE] กดปุ่ม Yellow หน้างาน! -> ตัดไฟ Yellow และล็อคตัวส่ง");
     digitalWrite(relayYellowPin, RELAY_OFF);
-    processReaction(incomingData.yellow_on);
+    processReaction(incomingData.yellow_on, "light"); // โหมด Light
     
     myDataToSend.override_yellow = true; 
     sendOverrideCommand(); 
@@ -252,7 +247,7 @@ void loop() {
   if (lastBtnGreen == HIGH && curBtnGreen == LOW) {
     Serial.println("\n🛑 [OVERRIDE] กดปุ่ม Green หน้างาน! -> ตัดไฟ Green และล็อคตัวส่ง");
     digitalWrite(relayGreenPin, RELAY_ON);
-    processReaction(incomingData.green_on);
+    processReaction(incomingData.green_on, "light"); // โหมด Light
     
     myDataToSend.override_green = true; 
     sendOverrideCommand(); 
@@ -263,7 +258,7 @@ void loop() {
   if (lastFootSwitch == HIGH && curFootSwitch == LOW) {
     Serial.println("\n🛑 [OVERRIDE] เหยียบ Foot Switch หน้างาน! -> ปิดเสียง (Buzzer) และล็อคตัวส่ง");
     digitalWrite(buzzerPin, BUZZER_OFF);
-    processReaction(incomingData.sound_mode && incomingData.sound_enabled);
+    processReaction(incomingData.sound_mode && incomingData.sound_enabled, "sound"); // โหมด Sound
     
     myDataToSend.override_sound = true; 
     sendOverrideCommand(); 
