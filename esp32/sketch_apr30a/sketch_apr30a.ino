@@ -13,7 +13,7 @@
 
 const char* ssid = "IceiPhone";      // ใส่ชื่อ Wi-Fi ของคุณ
 const char* password = "Ice22547";   // ใส่รหัสผ่าน Wi-Fi
-String serverName = "https://reaction-sev5.vercel.app/"; 
+String serverName = "https://reaction-puce.vercel.app/"; 
 
 // ตั้งค่าจอ LCD I2C Address 0x27 ขนาด 16 ตัวอักษร 2 บรรทัด
 LiquidCrystal_I2C lcd(0x27, 16, 2);
